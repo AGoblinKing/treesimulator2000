@@ -40,7 +40,7 @@ vows.describe("Tree").addBatch
                 assert.equal tree.phosphorus, 1
 
         "can eat on timeout": 
-            topic: (tree) ->
+            topic: () ->
                 tree = new Tree
                     x: 5
                     y: 5
@@ -54,7 +54,9 @@ vows.describe("Tree").addBatch
                 tree.once "change:view", =>
                     tree.getEating()
 
-                tree.on "change:nitrogen", =>
+
+                # TODO: Figure out why you're firing twice
+                tree.once "change:nitrogen", (nitro) =>
                     clearTimeout tree.eater
                     @callback null, tree
 
@@ -64,9 +66,11 @@ vows.describe("Tree").addBatch
                     z: 0
                     nitrogen: 1
                 , world
-
+                
+                return 
             "has fed on nitrogen": (error, tree) ->
                 assert.equal tree.nitrogen, 1
+
         "can eat from multiple sources":
             topic: () ->
                 world = new World()
@@ -89,6 +93,7 @@ vows.describe("Tree").addBatch
                             nitrogen: 1
                         , world
                 tree.doEat()
+                return
             "has eaten 4 nitrogens": (error, tree) ->
                 assert.equal tree.nitrogen, 4
 
