@@ -1,23 +1,27 @@
-Entity = require "Entity"
+Entity = require "./entity"
 
 class Tree extends Entity
     init: ->
         @sets Entity::defaults
         @setBindings Entity::bindings
+        @setEvents Entity::events
         @getEating()
 
     getEating: ->
         @eater = setTimeout =>
-            @eat()
+            @doEat()
             @getEating()
         , @minEatTime + Math.random()*(@maxEatTime-@minEatTime)
 
-    eat: ->
+    doEat: ->
         # Go through view, take some minerals from surrounding area
         for entity in @map
             for nutrient in @bindings.nutrients
                 if entity[nutrient] and entity[nutrient] > 0
                     entity.emit "eat", nutrient, @eatRate, @
+    
+    getFed: (what, howMuch, who) ->
+        @[what] += howMuch 
 
     maxEatTime: 2
     minEatTime: .5
@@ -26,6 +30,9 @@ class Tree extends Entity
         potassium: 0
         nitrogen: 0
         phosphorus: 0
+        view: 1
+    events: 
+        "feed": "getFed"
     bindings: 
         nutrients: ["potassium", "nitrogen", "phosphorus"]
 

@@ -10,10 +10,16 @@ class Land extends Entity
         @nitrogen = Math.floor(Math.random()*100)
 
     eat: (what, howMuch, who) ->
-        if @[what] and @[what] >= howMuch
+        if @[what] 
+            if @[what] <= howMuch
+                howMuch = @[what]
+
             who.emit "feed", what, howMuch, @
             @[what] -= howMuch
-            
+
+    feed: (what, howMuch, who) ->
+        @[what] += howMuch   
+
     defaults:
         # brown
         phosphorus: 0 
@@ -21,6 +27,9 @@ class Land extends Entity
         potassium: 0
         # green
         nitrogen: 0
+
     events: 
         "eat": "eat"
+        "feed": "feed"
+
 module.exports = Land

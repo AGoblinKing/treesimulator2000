@@ -6,6 +6,7 @@ uuid = require "node-uuid"
 class Entity extends EventEmitter
     constructor: (overrides = {}, @world) ->
         # Do the work for defaults
+        @map = {}
         @properties = {}
         @children = []
         @sets @defaults
@@ -17,9 +18,13 @@ class Entity extends EventEmitter
         @setMaxListeners 0
         @setBindings @bindings
         @setEvents @events
+
         if @world 
             @move @location
-        @world.requestView ""
+
+
+    setWorld: (@world) ->
+        @move @location
 
     init: ->
 
@@ -72,9 +77,9 @@ class Entity extends EventEmitter
 
     setEvents: (events) ->
         for event, handler of events
-            if typeof handler == "Function"
+            if typeof handler == "function"
                 @on event, handler
-            else if typeof handler == "String"
+            else if typeof handler == "string"
                 @on event, @[handler]
 
     setBindings: (bindings)->
@@ -95,29 +100,30 @@ class Entity extends EventEmitter
                     do (binding, prop) =>
                         @on "change:#{prop}", (value) ->
                             @emit "change:#{binding}", @[binding]
-    viewBindings: () ->
+    setViewBindings: () ->
         # TODO: Only remove the old ones, keep the ones to be reused
         #clean up old view
         if @viewBindings
-            for event, fn in @viewBindings
+            for event, fn of @viewBindings
                 @world.removeEventListener event, fn
                 @viewBindings[event] = undefined
         else 
             @viewBindings = {}
 
         if @view > -1
-            pos = @position
+            loc = @location
             for offsetX in [-@view..@view]
                 for offsetY in [-@view..@view]
                     for offsetZ in [0..1]
-                        event = [pos.x+offsetX, pos.y+offsetY, offsetZ].join ":"
-                        @viewBindings[event] = (position, entity) =>
-                            @emit "change:view", position, entity
+                        event = [loc[0]+offsetX, loc[1]+offsetY, offsetZ].join ":"
+                        @viewBindings[event] = (location, entity) =>
+                            @map[location.join ":"] = entity
+                            @emit "change:view", location, entity
                         # Override on so that the world will immediately respond if there is something there?
                         @world.loc event, @viewBindings[event]
-        
-    changeView: (position, entity) ->
-        @map[position.join ":"] = entity
+    
+    setView: (@view) ->
+        @setViewBindings()
 
     bindings: 
         "location": ["x", "y", "z"]
@@ -125,14 +131,14 @@ class Entity extends EventEmitter
     events: 
         "moved": (location) ->
             @location = location
-            @viewBindings()
-        "change:view": "changeView"
+        "change:location":() ->
+            @setViewBindings()
 
     defaults: 
         x: 0,
         y: 0,
         z: 0,
-        view: -1
+    view: -1
 
 
 module.exports = Entity
