@@ -3,8 +3,6 @@ Entity = require "./entity"
 class Land extends Entity
     init: ->
         # Because I override the defaults for Land, I must call entities...
-        @sets Entity::defaults
-        @setEvents Entity::events
         @phosphorus = Math.floor(Math.random()*100)
         @potassium = Math.floor(Math.random()*100)
         @nitrogen = Math.floor(Math.random()*100)

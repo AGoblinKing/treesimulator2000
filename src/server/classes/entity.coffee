@@ -9,20 +9,34 @@ class Entity extends EventEmitter
         @map = {}
         @properties = {}
         @children = []
+
+        ## Setup Supers as well
+        @handleSupers @constructor, @sets, "defaults"
         @sets @defaults
         # Setup ID
         @set "id", uuid.v4()
         # Do the work for overrides
+
+        ## Setup supers as well
+        @handleSupers @constructor, @setBindings, "bindings"
+        @setBindings @bindings
+
         @init()
         @sets overrides
         @setMaxListeners 0
-        @setBindings @bindings
+
+        ## Setup supers as well
+        @handleSupers @constructor, @setEvents, "events"
         @setEvents @events
 
         if @world 
             @move @location
 
-
+    handleSupers: (level, fn, prop) ->
+        if level.__super__[prop] and level.__super__.constructor.__super__
+            fn.call @, level.__super__[prop]
+            @handleSupers level.__super__.constructor, fn, prop
+            
     setWorld: (@world) ->
         @move @location
 
@@ -131,6 +145,11 @@ class Entity extends EventEmitter
     events: 
         "moved": (location) ->
             @location = location
+
+        "changed": (name, val, oldProp) ->
+            if @world
+                @world.emit (@location.join ":"), @location, @, name, val
+
         "change:location":() ->
             @setViewBindings()
 
