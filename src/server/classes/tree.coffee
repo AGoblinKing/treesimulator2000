@@ -16,9 +16,12 @@ class Tree extends Entity
         for location, entity of @map
             if entity.id != @id
                 for nutrient in @bindings.nutrients
-                    entity.emit "eat", nutrient, @eatRate, @
+                    entity.emit "eat", 
+                        what: nutrient
+                        howMuch: @eatRate
+                        who: @
     
-    getFed: (what, howMuch, who) ->
+    getFed: ({what, howMuch, who}) ->
         @[what] += howMuch 
 
     maxEatTime: 2
@@ -29,7 +32,7 @@ class Tree extends Entity
         potassium: 0
         nitrogen: 0
         phosphorus: 0
-        view: 1
+    view: 1
     events: 
         "feed": "getFed"
     bindings: 

@@ -4,7 +4,7 @@ uuid = require "node-uuid"
     Basic Entity class
 ###
 class Entity extends EventEmitter
-    constructor: (overrides = {}, @world) ->
+    constructor: (overrides = {}) ->
         # Do the work for defaults
         @map = {}
         @properties = {}
@@ -28,9 +28,6 @@ class Entity extends EventEmitter
         ## Setup supers as well
         @handleSupers @constructor, @setEvents, "events"
         @setEvents @events
-
-        if @world 
-            @move @location
 
     handleSupers: (level, fn, prop) ->
         if level.__super__[prop] and level.__super__.constructor.__super__
@@ -56,9 +53,15 @@ class Entity extends EventEmitter
             @__defineSetter__ name, (val) ->
                 oldProp = @properties[name]
                 @properties[name] = val
-                @emit "changed", name, val, oldProp
-                @emit "change:#{name}", val, oldProp
+                @emit "changed",
+                    name: name
+                    value: val
+                    oldValue: oldProp
+                @emit "change:#{name}", 
+                    value: val
+                    oldValue: oldProp
 
+    # TODO: Add bindings to property list
     simplify: () ->
         simple = 
             children: []
@@ -78,16 +81,21 @@ class Entity extends EventEmitter
     add: (child) ->
         @children.push child
         child.parent = @
-        child.emit "added", @
-        @emit "add", child, @children
+        child.emit "added", 
+            entity: @
+        @emit "add",
+            entity: child
 
     remove: (child) ->
         location = @children.indexOf child
         if location != -1
             @children.splice location, 1
             child.parent = undefined
-            @emit "remove", child, @children
-            child.emit "removed", @
+            @emit "remove", 
+                entity: child
+
+            child.emit "removed", 
+                entity: @
 
     setEvents: (events) ->
         for event, handler of events
@@ -99,6 +107,9 @@ class Entity extends EventEmitter
     setBindings: (bindings)->
         for binding, values of bindings
             do (binding, values) =>
+                @__defineGetter__ @properties[binding], =>
+                    @[binding]
+
                 @__defineGetter__ binding, ->
                     ret = []
                     for prop in values 
@@ -109,18 +120,20 @@ class Entity extends EventEmitter
                     for prop, i in value
                         if @[values[i]] != prop
                             @[values[i]] = prop
-                    @emit "change:#{binding}", @[binding]
+                    @emit "change:#{binding}", 
+                        value: @[binding]
                 for prop in values 
                     do (binding, prop) =>
-                        @on "change:#{prop}", (value) ->
-                            @emit "change:#{binding}", @[binding]
+                        @on "change:#{prop}", ({value}) ->
+                            @emit "change:#{binding}", 
+                                value: @[binding]
     setViewBindings: () ->
         # TODO: Only remove the old ones, keep the ones to be reused
         #clean up old view
         if @viewBindings
             for event, fn of @viewBindings
-                @world.removeEventListener event, fn
-                @viewBindings[event] = undefined
+                @world.removeListener event, fn if fn?
+                delete @viewBindings[event]
         else 
             @viewBindings = {}
 
@@ -130,9 +143,17 @@ class Entity extends EventEmitter
                 for offsetY in [-@view..@view]
                     for offsetZ in [0..1]
                         event = [loc[0]+offsetX, loc[1]+offsetY, offsetZ].join ":"
-                        @viewBindings[event] = (location, entity) =>
-                            @map[location.join ":"] = entity
-                            @emit "change:view", location, entity
+                        @viewBindings[event] = (event) =>
+                            locationT = event.location.join ":"
+                            @map[locationT] = event.entity
+
+                            if event.type == "move" and event.oldLocation and (oldLocT = event.oldLocation.join ":") != locationT
+                                @map[oldLocT] = undefined
+                                delete @map[oldLocT]
+
+                            @emit "change:view",
+                                location: event.location
+                                entity: event.entity
                         # Override on so that the world will immediately respond if there is something there?
                         @world.loc event, @viewBindings[event]
     
@@ -143,12 +164,13 @@ class Entity extends EventEmitter
         "location": ["x", "y", "z"]
 
     events: 
-        "moved": (location) ->
-            @location = location
-
-        "changed": (name, val, oldProp) ->
-            if @world
-                @world.emit (@location.join ":"), @location, @, name, val
+        "changed": ({name, value, oldValue}) ->
+            @world?.emit (@location.join ":"), 
+                type: "property"
+                name: name
+                value: value
+                location: @location
+                entity: @
 
         "change:location":() ->
             @setViewBindings()

@@ -1,5 +1,6 @@
 vows = require "vows"
 assert = require "assert"
+util = require "util"
 
 Entity = require "../server/classes/Entity"
 World = require "../server/classes/World"
@@ -11,7 +12,7 @@ vows.describe("Entity").addBatch
             assert.equal entity.x, 0
         "has change events": 
             topic: (entity) ->
-                entity.once "change:x", (value) =>
+                entity.once "change:x", ({value}) =>
                     @callback null, value
                 entity.x = 1
                 return
@@ -21,7 +22,7 @@ vows.describe("Entity").addBatch
             assert.deepEqual entity.location, [1,0,0] 
         "has binding change events":
             topic: (entity) ->
-                entity.once "change:location", (value) =>
+                entity.once "change:location", ({value}) =>
                     @callback null, value
                 entity.x = 5
                 return
@@ -65,26 +66,41 @@ vows.describe("Entity").addBatch
         "handles view changes": 
             topic: () ->
                 world = new World()
-                e1 = new Entity
+                world.add e1 = new Entity
                     x: 0
                     y: 0
                     z: 0
-                , world
+                    id: "e1"
                 e1.setView 1
-                e1.on "change:view", (location, entity) =>
+
+                e1.once "change:view", ({location, entity}) =>
                     @callback null, location, entity, e1
-                e2 = new Entity
+
+                world.add e2 = new Entity
                     x: 1
                     y: 0
                     z: 0
-                    id: "foo"
-                , world
+                    id: "e2"
+
                 return 
-            "when an entity is added": (error, location, entity) =>
-                assert.equal entity.id, "foo"
+            "when an entity is added": (error, location, entity) ->
+                assert.equal entity.id, "e2"
                 assert.deepEqual entity.location, location
-            "its map is also updated": (error, location, entity, e1) =>
+            "its map is also updated": (error, location, entity, e1) ->
                 assert.equal e1.map[location.join ":"].id, entity.id
+
+            "when an entity moves": 
+                topic: (location, e2, e1) ->
+                    e1.once "change:view", ({location, entity}) =>
+                        @callback null, location, entity, e1
+                    e2.move [1, 0, 1]
+                    return
+
+                "its view is updated": (error, location, e2, e1) ->
+                    assert.equal e1.map["1:0:1"].id, e2.id
+
+                "and the old location is cleared": (error, location, e2, e1) ->
+                    assert.equal e1.map["1:0:0"], undefined  
 
 
 .export module

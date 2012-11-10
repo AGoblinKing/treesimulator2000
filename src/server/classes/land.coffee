@@ -7,15 +7,18 @@ class Land extends Entity
         @potassium = Math.floor(Math.random()*100)
         @nitrogen = Math.floor(Math.random()*100)
 
-    eat: (what, howMuch, who) ->
+    eat: ({what, howMuch, who}) ->
         if @[what] 
             if @[what] <= howMuch
                 howMuch = @[what]
 
-            who.emit "feed", what, howMuch, @
+            who.emit "feed",
+                what: what
+                howMuch: howMuch
+                who: @
             @[what] -= howMuch
 
-    feed: (what, howMuch, who) ->
+    feed: ({what, howMuch, who}) ->
         @[what] += howMuch   
 
     defaults:

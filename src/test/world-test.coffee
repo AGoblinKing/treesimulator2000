@@ -8,21 +8,15 @@ vows.describe("World").addBatch
     "A World":
         topic: new World()
         "can inform about location": 
-            "when empty": 
-                topic: (world) ->
-                    world.loc "1:1:1", (entity) =>
-                        @callback "found something", entity 
-
             "when occupied":
                 topic: (world) ->
-                    world.on "1:1:0", (location, entity) =>
+                    world.on "1:1:0", ({location, entity}) =>
                         @callback null, location, entity
 
                     world.add new Entity
                         x: 1
                         y: 1
                         z: 0
-                    , world
                     return
                 "is returned": (error, location, entity) ->
                     assert.deepEqual entity.location, [1, 1, 0]
@@ -32,14 +26,13 @@ vows.describe("World").addBatch
                     x: 5
                     y: 5
                     z: 0
-                , world
+
                 world.add e2 = new Entity
                     x: 5
                     y: 6
                     z: 0
-                , world
 
-                e1.on "collision", (entity, location) =>
+                e1.on "collision", ({entity, location}) =>
                     @callback null, entity, location, e2
                 
                 e2.move e1.location

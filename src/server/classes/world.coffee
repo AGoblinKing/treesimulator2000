@@ -6,6 +6,7 @@ Tree = require "./tree"
 ###
 class World extends Entity
     init: ->
+        # TODO: Not entirely sure this @locations needs to exist
         @locations = {}
 
     generate: (w, h) ->
@@ -22,22 +23,40 @@ class World extends Entity
                 x: Math.floor(Math.random()*w)
                 y: Math.floor(Math.random()*h)
                 z: 1
-
+    add: (entity) ->
+        entity.setWorld @
+        super entity
     loc: (event, fn) ->
         # Someone wanted to know something about a location.
         @on.apply @, arguments
         if @locations[event] 
-            fn @locations[event].location, @locations[event]
+            fn 
+                location: @locations[event].location
+                entity: @locations[event] 
 
     move: (entity, location) ->
         sLoc = location.join(":")
         dest = @locations[sLoc]
+
         if not dest
             @locations[sLoc] = entity
-            @emit sLoc, location, entity
-            entity.emit "moved", location
+            if entity.location.join(":") != sLoc
+                @locations[entity.location.join ":"] = undefined
+            oldLoc = entity.location
+            entity.location = location
+
+            @emit sLoc,
+                location: location
+                entity: entity
+                oldLocation: oldLoc
+                type: "move"
         else 
-            entity.emit "collision", dest, location
-            dest.emit "collision", entity, location
+            entity.emit "collision",
+                entity: dest
+                location: location
+
+            dest.emit "collision", 
+                entity: entity
+                location: location
 
 module.exports = World

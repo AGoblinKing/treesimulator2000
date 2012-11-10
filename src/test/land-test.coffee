@@ -17,7 +17,10 @@ vows.describe("Land").addBatch
                 land.nitrogen = 5
                 otherLand.on "feed", =>
                     @callback null, [land, otherLand]  
-                land.emit "eat", "nitrogen", 5, otherLand
+                land.emit "eat", 
+                    what: "nitrogen"
+                    howMuch: 5
+                    who: otherLand
                 return
 
             "has fed the other land": ([land, otherLand]) ->

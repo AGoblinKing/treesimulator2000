@@ -8,11 +8,12 @@ Tree = require "../server/classes/tree"
 world = new World()
 vows.describe("Tree").addBatch
     "A Tree":
-        topic: new Tree
-            x: 0
-            y: 0
-            z: 1
-        , world
+        topic: ()->
+            world.add tree = new Tree
+                x: 0
+                y: 0
+                z: 1
+            tree
         "has nutrients": (tree) ->
             assert.isNumber tree.phosphorus
             assert.isNumber tree.potassium
@@ -28,12 +29,11 @@ vows.describe("Tree").addBatch
                 tree.on "change:phosphorus", =>
                     @callback null, tree
 
-                land = new Land
+                world.add land = new Land
                     x: 0
                     y: 0
                     z: 0
                     phosphorus: 1
-                , world
 
                 return
             "has fed on phosphorus": (error, tree) ->
@@ -41,12 +41,12 @@ vows.describe("Tree").addBatch
 
         "can eat on timeout": 
             topic: () ->
-                tree = new Tree
+                world.add tree = new Tree
                     x: 5
                     y: 5
                     z: 1
                     nitrogen: 0
-                , world
+
                 clearTimeout tree.eater
                 tree.eatTimeRate = 1
                 tree.minEatTime = 1
@@ -56,16 +56,15 @@ vows.describe("Tree").addBatch
 
 
                 # TODO: Figure out why you're firing twice
-                tree.once "change:nitrogen", (nitro) =>
+                tree.once "change:nitrogen", () =>
                     clearTimeout tree.eater
                     @callback null, tree
 
-                land = new Land
+                world.add land = new Land
                     x: 5
                     y: 5
                     z: 0
                     nitrogen: 1
-                , world
                 
                 return 
             "has fed on nitrogen": (error, tree) ->
@@ -74,24 +73,23 @@ vows.describe("Tree").addBatch
         "can eat from multiple sources":
             topic: () ->
                 world = new World()
-                tree = new Tree
+                world.add tree = new Tree
                     x: 0
                     y: 0
                     z: 1
                     nitrogen: 0
-                , world
+
                 clearTimeout tree.eater
-                tree.on "change:nitrogen", (howMuch) =>
-                    if howMuch == 4
+                tree.on "change:nitrogen", ({value}) =>
+                    if value == 4
                         @callback null, tree
                 for x in [0..1]
                     for y in [0..1]
-                        new Land
+                        world.add new Land
                             x: x
                             y: y
                             z: 0
                             nitrogen: 1
-                        , world
                 tree.doEat()
                 return
             "has eaten 4 nitrogens": (error, tree) ->
