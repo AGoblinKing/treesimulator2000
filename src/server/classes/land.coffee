@@ -28,6 +28,7 @@ class Land extends Entity
         potassium: 0
         # green
         nitrogen: 0
+        type: "land"
 
     events: 
         "eat": "eat"

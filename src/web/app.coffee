@@ -3,7 +3,9 @@ class Controls
         @keyState = new THREEx.KeyboardState()
         @mouse = new THREE.Vector2()
         @projector = new THREE.Projector()
+        @curUpdate = 0
         @selected = undefined
+        @lastPos = @camera.position
         $("body").mousemove (e) =>
             @mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
             @mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
@@ -32,7 +34,16 @@ class Controls
         @selectedoldColor = @selected.material.color
         @selected.material.color = new THREE.Color 0xFF0000
 
+    updateRate: 100
+    moveUpdate: (delta) ->
+        @curUpdate += delta*1000
+        if @curUpdate >= @updateRate    
+            @curUpdate = 0
+            pos = {x:@camera.position.x, y: @camera.position.y+5, z: 0}
+            @socket?.emit "update", pos
+
     update: (delta) ->
+        @moveUpdate delta
         if @keyState.pressed "w"
             @camera.position.y += @speed*delta
         if @keyState.pressed "s"
@@ -43,16 +54,26 @@ class Controls
             @camera.position.x += @speed*delta
 
 class Land
-    constructor: (entity, scene) ->
+    constructor: (entity, @scene) ->
         @properties = entity.properties
 
-        geom = new THREE.PlaneGeometry 1,1
+        
         mat = new THREE.MeshLambertMaterial
             color: @computeColor()
-        obj = new THREE.Mesh geom, mat
+
+        switch @properties.type
+            when "tree"
+                geom = new THREE.CubeGeometry 1,1,1
+            else
+                geom = new THREE.PlaneGeometry 1,1
+        
+        @obj = obj = new THREE.Mesh geom, mat
+
         props = entity.properties
         obj.position.x = props.x
         obj.position.y = props.y
+        if props.z > 0 
+            props.z -= .5
         obj.position.z = props.z
         ###
         outline = new THREE.MeshLambertMaterial
@@ -62,9 +83,15 @@ class Land
         outlineMesh.position.z += .001
         obj.add outlineMesh
         ###
-        scene.add obj
+        @scene.add obj
 
-    
+    update: ({@properties}) ->
+        @obj.material.color = @computeColor()
+
+    kill: ->
+        @scene.remove @obj
+        @obj.deallocate()
+
     computeColor: ->
         # green
         color = new THREE.Color 0x5E2605
@@ -108,10 +135,17 @@ $ ->
         renderer.render scene, camera
         requestAnimationFrame render 
 
-    socket = io.connect()
-    socket.on "view", (world) ->
-        for entity in world.children 
+    socket = io.connect null, 
+        reconnect: false
+    controls.socket = socket
+    entities = {}
+    socket.on "update", (view) ->
+        for entity in view
             # Create 1x1 Square @ location
-            new Land entity, scene
+            id = entity.properties.id
+            if not entities[id]
+                entities[id] = new Land entity, scene
+            else 
+                entities[id].update entity
 
     render()

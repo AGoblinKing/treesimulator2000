@@ -101,7 +101,5 @@ vows.describe("Entity").addBatch
 
                 "and the old location is cleared": (error, location, e2, e1) ->
                     assert.equal e1.map["1:0:0"], undefined  
-
-
 .export module
 

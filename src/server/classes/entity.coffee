@@ -43,7 +43,10 @@ class Entity extends EventEmitter
         @set name, value for name, value of values
 
     move: (location) ->
-        @world.move @, location
+        if @phantom
+            @location = location
+        else 
+            @world.move @, location
 
     set: (name, value) ->
         @properties[name] = value
@@ -62,6 +65,13 @@ class Entity extends EventEmitter
                     oldValue: oldProp
 
     # TODO: Add bindings to property list
+
+    mapSimplify: () ->
+        view = []
+        for location, entity of @map
+            view.push entity.simplify() if entity
+        view
+
     simplify: () ->
         simple = 
             children: []
@@ -179,7 +189,10 @@ class Entity extends EventEmitter
         x: 0,
         y: 0,
         z: 0,
+    # The viewing range for an entity
     view: -1
+    # Whether an entity exists or not for collisions/viewing
+    phantom: false
 
 
 module.exports = Entity

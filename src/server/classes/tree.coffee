@@ -1,15 +1,41 @@
 Entity = require "./entity"
 
 class Tree extends Entity
-    init: ->
-        if @world
-            @getEating()
+    setWorld: (@world) ->
+        super @world
+        @getEating()
+        @getBreeding()
+
+    getBreeding: () ->
+        @breeder = setTimeout =>
+            if @potassium > @spawnCost and @nitrogen > @spawnCost  and @phosphorus > @spawnCost 
+                @spawn()
+            @getBreeding()
+        , Math.floor((@minSpawnRate + Math.random()*(@maxSpawnRate-@minSpawnRate))*@timeRate)
 
     getEating: ->
         @eater = setTimeout =>
             @doEat()
             @getEating()
-        , Math.floor((@minEatTime + Math.random()*(@maxEatTime-@minEatTime))*@eatTimeRate)
+        , Math.floor((@minEatTime + Math.random()*(@maxEatTime-@minEatTime))*@timeRate)
+
+    getSpawnDistance: () ->
+        Math.floor(@minSpawnDistance + Math.random()*(@maxSpawnDistance-@minSpawnDistance+1)) * -Math.round(Math.random())
+    spawn: ->
+        for nutrient in @bindings.nutrients
+            @[nutrient] -= @spawnCost
+
+        tree = new Tree 
+            x: @x + @getSpawnDistance()
+            y: @y + @getSpawnDistance()
+            z: 1
+
+        @world.add tree
+
+
+    upkeep: ->
+        for nutrient in @bindings.nutrients
+            @[nutrient] -= @upkeepRate
 
     doEat: ->
         # Go through view, take some minerals from surrounding area
@@ -26,15 +52,22 @@ class Tree extends Entity
 
     maxEatTime: 2
     minEatTime: .5
-    eatTimeRate: 1000*60*60
-    eatRate: 1
+    maxSpawnDistance: 3
+    minSpawnDistance: 2
+    spawnCost: 20
+    maxSpawnRate: 10
+    minSpawnRate: 5
+    timeRate: 1000
+    eatRate: 2
     defaults: 
-        potassium: 0
-        nitrogen: 0
-        phosphorus: 0
+        potassium: 5
+        nitrogen: 5
+        type: "tree"
+        phosphorus: 5
     view: 1
     events: 
         "feed": "getFed"
+ 
     bindings: 
         nutrients: ["potassium", "nitrogen", "phosphorus"]
 
