@@ -14,10 +14,30 @@ class Player extends Entity
             @move [x, y, z]
 
         @socket.emit "update", @mapSimplify()
+        setInterval =>
+            @sendUpdates()
+        , @updateTime
     phantom: true
     view: 10
+    updateTime: 100
+    updates: {}
+    sendUpdates: ->
+        batch = []
+        batch.push update for id, update of @updates
+        if batch.length > 0
+            @socket.emit "update", batch
     events: 
-        "change:view": ({entity}) ->
-            @socket?.emit "update", [entity.simplify()]
+        "change:view": ({entity, name, value, oldValue}) ->
+            # Only send delta 
+            if name 
+                if not @updates[entity.id]
+                    update = 
+                        id: entity.id
+                    update[name] = value
+                    @updates[entity.id] = {properties:update}
+                else 
+                    @updates[entity.id].properties[name] = value
+            else 
+                @updates[entity.id] = entity.simplify()
 
 module.exports = Player

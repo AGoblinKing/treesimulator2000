@@ -22,7 +22,8 @@ class Entity extends EventEmitter
         @setBindings @bindings
 
         @init()
-        @sets overrides
+        for name, value of overrides
+            @[name] = value
         @setMaxListeners 0
 
         ## Setup supers as well
@@ -30,10 +31,10 @@ class Entity extends EventEmitter
         @setEvents @events
 
     handleSupers: (level, fn, prop) ->
-        if level.__super__[prop] and level.__super__.constructor.__super__
-            fn.call @, level.__super__[prop]
-            @handleSupers level.__super__.constructor, fn, prop
-            
+            if level.__super__[prop]
+                fn.call @, level.__super__[prop]
+                @handleSupers level.__super__.constructor, fn, prop
+                
     setWorld: (@world) ->
         @move @location
 
@@ -120,23 +121,46 @@ class Entity extends EventEmitter
                 @__defineGetter__ @properties[binding], =>
                     @[binding]
 
-                @__defineGetter__ binding, ->
-                    ret = []
-                    for prop in values 
-                        ret.push @[prop]
-                    ret
 
-                @__defineSetter__ binding, (value) ->
-                    for prop, i in value
-                        if @[values[i]] != prop
-                            @[values[i]] = prop
-                    @emit "change:#{binding}", 
-                        value: @[binding]
-                for prop in values 
-                    do (binding, prop) =>
-                        @on "change:#{prop}", ({value}) ->
-                            @emit "change:#{binding}", 
-                                value: @[binding]
+                # TODO: Fix reverse bindings
+                if typeof values == "string"
+                    bind = values.split " "
+                    @__defineGetter__ binding, ->
+                        @[bind[0]][bind[1]]
+
+                    @__defineSetter__ binding, (value) ->
+                        @[bind[0]][bind[1]] = value
+                        @emit "change:#{binding}",
+                            value: value
+
+                        @emit "change:#{bind[0]}", 
+                            value: @[bind[0]]
+
+                    @on "change:#{bind[0]}", ({value, oldValue}) ->
+                        if not oldValue or value[bind[1]] != oldValue[bind[1]] 
+                            @emit "change:#{binding}",
+                                value: value
+                                oldValue: oldValue[bind[1]]
+                else 
+                    @__defineGetter__ binding, ->
+                        ret = []
+                        for prop in values 
+                            ret.push @[prop]
+                        ret
+
+                    @__defineSetter__ binding, (value) ->
+                        for prop, i in value
+                            if @[values[i]] != prop
+                                @[values[i]] = prop
+
+                        @emit "change:#{binding}", 
+                            value: value
+
+                    for prop in values 
+                        do (binding, prop) =>
+                            @on "change:#{prop}", ({value}) ->
+                                @emit "change:#{binding}", 
+                                    value: @[binding]
     setViewBindings: () ->
         # TODO: Only remove the old ones, keep the ones to be reused
         #clean up old view
@@ -161,9 +185,7 @@ class Entity extends EventEmitter
                                 @map[oldLocT] = undefined
                                 delete @map[oldLocT]
 
-                            @emit "change:view",
-                                location: event.location
-                                entity: event.entity
+                            @emit "change:view", event
                         # Override on so that the world will immediately respond if there is something there?
                         @world.loc event, @viewBindings[event]
     
@@ -171,7 +193,7 @@ class Entity extends EventEmitter
         @setViewBindings()
 
     bindings: 
-        "location": ["x", "y", "z"]
+        location: ["x", "y", "z"]
 
     events: 
         "changed": ({name, value, oldValue}) ->
@@ -179,6 +201,7 @@ class Entity extends EventEmitter
                 type: "property"
                 name: name
                 value: value
+                oldValue: oldValue
                 location: @location
                 entity: @
 
@@ -186,9 +209,9 @@ class Entity extends EventEmitter
             @setViewBindings()
 
     defaults: 
-        x: 0,
-        y: 0,
-        z: 0,
+        x: 0
+        y: 0
+        z: 0
     # The viewing range for an entity
     view: -1
     # Whether an entity exists or not for collisions/viewing

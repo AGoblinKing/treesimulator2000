@@ -11,17 +11,19 @@ vows.describe("Entity").addBatch
         "has default properties": (entity) ->
             assert.equal entity.x, 0
         "has change events": 
-            topic: (entity) ->
+            topic: () ->
+                entity = new Entity()
                 entity.once "change:x", ({value}) =>
-                    @callback null, value
+                    @callback null, value, entity
                 entity.x = 1
                 return
-            "that fire when property is changed": (value) ->
+            "that fire when property is changed": (err, value, entity) ->
                 assert.equal value, 1
-        "has bindings": (entity) ->
-            assert.deepEqual entity.location, [1,0,0] 
+            "has bindings": (err, value, entity) ->
+                assert.deepEqual entity.location, [1,0,0] 
         "has binding change events":
-            topic: (entity) ->
+            topic: () ->
+                entity = new Entity()
                 entity.once "change:location", ({value}) =>
                     @callback null, value
                 entity.x = 5
