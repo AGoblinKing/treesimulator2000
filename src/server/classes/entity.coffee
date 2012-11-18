@@ -7,9 +7,9 @@ class Entity extends EventEmitter
     constructor: (overrides = {}) ->
         # Do the work for defaults
         @map = {}
-        @properties = {}
+       
         @children = []
-
+        @properties = {}
         ## Setup Supers as well
         @handleSupers @constructor, @sets, "defaults"
         @sets @defaults
