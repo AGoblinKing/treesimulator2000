@@ -7,6 +7,7 @@ app.use express.static "#{__dirname}/../web"
 
 world = new (require "./classes/world")
 world.generate 50, 50
+
 Player = require "./classes/player"
 
 io.set('log level', 1)

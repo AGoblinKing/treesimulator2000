@@ -6,6 +6,8 @@ Entity = require "./entity"
     Instantiated per user, provides their area of concern
 ###
 class Player extends Entity
+    init: ->
+        @updates = {}
     setSocket: (@socket) ->
         @socket.on "update", ({x, y, z}) =>
             x = Math.floor x
@@ -20,7 +22,6 @@ class Player extends Entity
     phantom: true
     view: 10
     updateTime: 100
-    updates: {}
     sendUpdates: ->
         batch = []
         batch.push update for id, update of @updates

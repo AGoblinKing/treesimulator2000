@@ -12,7 +12,7 @@ vows.describe("Entity").addBatch
             assert.equal entity.x, 0
         "has change events": 
             topic: () ->
-                entity = new Entity()
+                entity  = new Entity()
                 entity.once "change:x", ({value}) =>
                     @callback null, value, entity
                 entity.x = 1
@@ -64,6 +64,49 @@ vows.describe("Entity").addBatch
                     children: [child.simplify()]
         "has a map": (entity) ->
             assert.isObject entity.map
+
+        "can instantiate from data": 
+            topic: ->
+                csonData = """
+                {
+                    type: "Tree"
+                    properties: 
+                        phosphorus: 0
+                        potassium: 0
+                        nitrogen: 0
+                        x: 5
+                        y: 2
+                        z: 3
+                    goals: [
+                        name: "Eat some food!"
+                        actions: [
+                            type: "Take"
+                            howMuch: 1
+                            what: ["poo"]
+                            distance: 1
+                        ]
+                        triggers: [
+                            
+                        ]
+                        reactions: [
+                            type: "Take"
+                            howMuch: 1
+                            what: ["poo"]
+                        ]
+                    ]
+                }
+                """
+                entity = new Entity()
+                entity.fromCSON csonData
+                entity
+
+            "has properties set": (entity) ->
+                assert.equal entity.x, 5
+                assert.equal entity.potassium, 0
+
+            "has a goal": (entity) ->
+                assert.isArray entity.goals
+                assert.equal entity.goals?.length, 1
 
         "handles view changes": 
             topic: () ->

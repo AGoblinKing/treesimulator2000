@@ -1,6 +1,6 @@
-Entity = require "../classes/entity"
+Base = require "../classes/base"
     
-class Action extends Entity
+class Action extends Base
 
 class Give extends Action
     defaults:
@@ -8,8 +8,11 @@ class Give extends Action
         max: 0
         min: 0
         howMuch: 0
-    events: 
-        "take": ({what, howMuch}) -> 
+
+    reactions: 
+        "give": ({what, howMuch}) ->
+            @entity[what] += howMuch
+        
 
     # Attempt to give an item
     do: ({}) ->
@@ -29,20 +32,21 @@ class Take extends Action
                     what: @what
                     with: @with
                     who: @
-    events: 
-        "give": ({what, howMuch}) ->
+    reactions: 
+        "take": ({what, howMuch, who}) ->
+            if @entity[what] and @entity[what] > 0
+                if @entity[what] <= howMuch
+                    howMuch = @[what]
 
 
-class Move extends Action
-    defaults:
-        where: [0, 0, 0]
-
-    # Attempt to move towards target
-    do: () ->
-            
+                # This could fail and the resources disappear
+                @entity[what] -= howMuch
+                who.emit "give",
+                    what: what
+                    howMuch: howMuch
+                    who: @
 
 module.exports =
-    Move: Move
     Take: Take
     Action: Action
     Give: Give

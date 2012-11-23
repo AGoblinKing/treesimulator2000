@@ -1,0 +1,2 @@
+# *Shrug*
+module.exports = {}

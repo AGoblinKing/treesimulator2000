@@ -9,7 +9,8 @@
   "dependencies": {
     "node-uuid": "",
     "socket.io":"",
-    "express": "2.x"
+    "express": "2.x",
+    "cson": ""
   }, 
   "devDependencies": {
     "vows": ""
