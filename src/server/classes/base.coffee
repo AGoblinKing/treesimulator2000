@@ -28,14 +28,12 @@ class Base extends EventEmitter
         ## Setup supers as well
         @handleSupers @constructor, @setEvents, "events"
         @setEvents @events
-        
+
     handleSupers: (level, fn, prop) ->
         if level.__super__[prop]
             fn.call @, level.__super__[prop]
             @handleSupers level.__super__.constructor, fn, prop
             
-
-
     init: ->
 
     sets: (values) ->

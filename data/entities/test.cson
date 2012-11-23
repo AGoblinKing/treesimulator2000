@@ -1,0 +1,16 @@
+{
+    properties: 
+        test: "test property"
+        name: "test entity"
+    goals: [
+        name: "Testing"
+        actions: [
+            type: "Action"
+            name: "test action"
+        ]
+        triggers: [
+            type: "Trigger"
+            name: "test trigger"
+        ]
+    ]
+}

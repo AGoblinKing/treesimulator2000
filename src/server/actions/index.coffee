@@ -1,6 +1,8 @@
 Base = require "../classes/base"
     
 class Action extends Base
+    do: () ->
+    reactions: {}
 
 class Give extends Action
     defaults:
@@ -12,10 +14,6 @@ class Give extends Action
     reactions: 
         "give": ({what, howMuch}) ->
             @entity[what] += howMuch
-        
-
-    # Attempt to give an item
-    do: ({}) ->
 
 
 class Take extends Action

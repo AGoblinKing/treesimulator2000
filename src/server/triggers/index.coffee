@@ -2,7 +2,8 @@
 Base = require "../classes/base"
 
 class Trigger extends Base
-
+    register: () ->
+        
 class Time extends Trigger
     defaults: 
         time: 100

@@ -10,7 +10,8 @@
     "node-uuid": "",
     "socket.io":"",
     "express": "2.x",
-    "cson": ""
+    "cson": "",
+    "walk": ""
   }, 
   "devDependencies": {
     "vows": ""
