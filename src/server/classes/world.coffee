@@ -1,9 +1,9 @@
 Entity = require "./entity"
-Land = require "./land"
-Tree = require "./tree"
 ###
     The world object + persistence
 ###
+{Land, Tree} = require "../entities"
+
 class World extends Entity
     init: ->
         # TODO: Not entirely sure this @locations needs to exist
@@ -23,6 +23,7 @@ class World extends Entity
                 x: Math.floor(Math.random()*w)
                 y: Math.floor(Math.random()*h)
                 z: 1
+                
     add: (entity) ->
         entity.setWorld @
         super entity

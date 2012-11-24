@@ -1,6 +1,7 @@
 Actions = require "../actions"
 Conditionals = require "../conditionals"
 Triggers = require "../triggers"
+logger = require "../logger"
 
 
 class Goal
@@ -11,24 +12,20 @@ class Goal
         @reactions = []
         {@name, actions, conditionals, triggers, reactions} = args 
 
-        if actions
-            for action in actions
-                if Actions[action.type]
-                    @actions.push new Actions[action.type](action)
-        if conditionals
-            for conditional in conditionals?
-                if Conditionals[conditional.type]
-                    @conditionals.push new Conditionals[conditional.type](conditional)
-        if triggers
-            for trigger in triggers
-                if Triggers[trigger.type]
-                    @triggers.push new Triggers[trigger.type](trigger)
-        if reactions
-            for reaction in reactions
-                if Actions[reaction.type]
-                    @reactions.push new Actions[reaction.type](reaction)
+        
+        @registerType actions, Actions, @actions
+        @registerType conditionals, Conditionals, @conditionals
+        @registerType reactions, Actions, @reactions
+        @registerType triggers, Triggers, @triggers
 
-
+    registerType: (types, classHolder, localHolder) ->
+        if types
+            for type in types
+                type.type = type.type.charAt(0).toUpperCase() + type.type.slice(1)
+                if classHolder[type.type]
+                    localHolder.push new classHolder[type.type](type)
+                else 
+                    logger.error "Unable to load type for goal #{type.type}"
     start: ->
         @setReactions @reactions
         @setActions @actions

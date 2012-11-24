@@ -85,8 +85,10 @@ class Land
         ###
         @scene.add obj
 
-    update: ({@properties}) ->
-        @obj.material.color = @computeColor()
+    update: ({properties}) ->
+        $.extend @properties, properties
+        if properties.phosphorus or properties.nitrogen or properties.phosorphus
+            @obj.material.color = @computeColor()  
 
     kill: ->
         @scene.remove @obj

@@ -1,21 +1,26 @@
 {
+	view: 1
 	properties: 
+		type: "tree"
 		phosphorus: 0
 		potassium: 0
 		nitrogen: 0
 	goals: [
 		name: "Eat some food!"
 		actions: [
-			type: "Take"
-			howMuch: 1
-			what: ["phosphorus", "potassium", "nitrogen"]
+			type: "take"
+			what: 
+				phosphorus: 1
+				potassium: 1
+				nitrogen: 1
 			distance: 1
 		]
 		triggers: [
 			type: "VariableTime"
-			maxTime: 1000*60*10
-			minTime: 1000*60*5
+			max: 1000 *60*10
+			min: 1000 *60*5
 			interval: true
-		]
+		],
+		reactions: [{type: "give"}]
 	]
 }

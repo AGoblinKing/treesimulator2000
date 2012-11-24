@@ -2,6 +2,7 @@
     properties: 
         test: "test property"
         name: "test entity"
+        
     goals: [
         name: "Testing"
         actions: [

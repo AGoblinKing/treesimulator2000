@@ -1,5 +1,6 @@
 {
     properties:
+        type: "land"
         phosphorus:
             type: "range"
             min: 0
@@ -12,7 +13,8 @@
             type: "range"
             min: 0
             max: 100
-    goals:
-        name: "Give out punch and pie"
-        reactions: [{type: "take"}, {type: "give}]
+    goals: [
+        name: "Give out minerals"
+        reactions: [{type: "take"}]
+    ]
 }

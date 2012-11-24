@@ -3,7 +3,7 @@ Base = require "../classes/base"
 
 class Trigger extends Base
     register: () ->
-        
+
 class Time extends Trigger
     defaults: 
         time: 100
@@ -17,15 +17,15 @@ class Time extends Trigger
 
 class VariableTime extends Trigger
     defaults: 
-        maxTime: 100
-        minTime: 10
+        max: 100
+        min: 10
         interval: false
 
     register: (fn) ->
         setTimeout =>
             fn()
-            @register fn if interval
-        , @minTime+Math.ranregisterm()*(@maxTime-@minTime)
+            @register fn if @interval
+        , @min+Math.random()*(@max-@min)
 
 # Wake up when map changes with property
 class Reactive extends Trigger
@@ -46,5 +46,6 @@ module.exports =
     Reactive: Reactive
     Time: Time
     Trigger: Trigger
+    VariableTime: VariableTime
 
  

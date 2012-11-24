@@ -2,20 +2,21 @@
   "name": "disgaea",
   "version": "0.0.0",
   "description": "Doing stuff",
-  "main": "lib/server/server.js",
+  "main": "index.js",
   "scripts": {
-    "test": "vows lib/test/* --spec"
+    "test": "cake test"
   },
   "dependencies": {
     "node-uuid": "",
     "socket.io":"",
     "express": "2.x",
     "cson": "",
-    "walk": ""
+    "file": "",
+    "winston": ""
   }, 
   "devDependencies": {
     "vows": ""
   },
   "repository": "",
-  "author": ""
+  "author": "Codeir"
 }

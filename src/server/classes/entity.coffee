@@ -8,6 +8,7 @@ class Entity extends Base
     constructor: (overrides = {}) ->
         # Do the work for defaults
         @map = {}
+        @debug = false
         @goals = []
         super overrides
                 
@@ -63,6 +64,9 @@ class Entity extends Base
     load: (data = {}) ->
         @sets data.properties if data.properties
         @loadGoals data.goals if data.goals
+        @view = data.view if data.view
+        @debug = data.debug if data.debug
+        return @
 
     loadGoals: (goals) ->
         for goal in goals
@@ -81,6 +85,8 @@ class Entity extends Base
 
     events: 
         "changed": ({name, value, oldValue}) ->
+            if @debug
+                console.log @id, name, value, oldValue
             @world?.emit (@location.join ":"), 
                 type: "property"
                 name: name
@@ -89,7 +95,7 @@ class Entity extends Base
                 location: @location
                 entity: @
 
-        "change:location":() ->
+        "change:location": () ->
             @setViewBindings()
 
     defaults: 

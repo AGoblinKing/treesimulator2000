@@ -7,7 +7,8 @@ Entity = require "./entity"
 ###
 class Player extends Entity
     init: ->
-        @updates = {}
+        @updates = {}   
+
     setSocket: (@socket) ->
         @socket.on "update", ({x, y, z}) =>
             x = Math.floor x
@@ -20,7 +21,7 @@ class Player extends Entity
             @sendUpdates()
         , @updateTime
     phantom: true
-    view: 10
+    view: 5
     updateTime: 100
     sendUpdates: ->
         batch = []
