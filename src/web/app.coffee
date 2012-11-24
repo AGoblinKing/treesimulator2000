@@ -143,11 +143,17 @@ $ ->
     entities = {}
     socket.on "update", (view) ->
         for entity in view
-            # Create 1x1 Square @ location
-            id = entity.properties.id
-            if not entities[id]
-                entities[id] = new Land entity, scene
-            else 
-                entities[id].update entity
+            switch entity.type
+                when "fog"
+                    if entities[entity.properties.id] 
+                        entities[entity.properties.id].kill()
+                        entities[entity.properties.id] = undefined
+                else 
+                    # Create 1x1 Square @ location
+                    id = entity.properties.id
+                    if not entities[id]
+                        entities[id] = new Land entity, scene
+                    else 
+                        entities[id].update entity
 
     render()

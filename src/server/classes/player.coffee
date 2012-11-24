@@ -11,10 +11,11 @@ class Player extends Entity
 
     setSocket: (@socket) ->
         @socket.on "update", ({x, y, z}) =>
-            x = Math.floor x
-            y = Math.floor y
-            z = Math.floor z
-            @move [x, y, z]
+            if  @x != x and @y != y and @z != y
+                x = Math.floor x
+                y = Math.floor y
+                z = Math.floor z
+                @move [x, y, z]
 
         @socket.emit "update", @mapSimplify()
         setInterval =>
@@ -29,17 +30,25 @@ class Player extends Entity
         if batch.length > 0
             @socket.emit "update", batch
     events: 
-        "change:view": ({entity, name, value, oldValue}) ->
+        "change:view": ({entity, name, value, oldValue, type}) ->
             # Only send delta 
-            if name 
-                if not @updates[entity.id]
-                    update = 
-                        id: entity.id
-                    update[name] = value
-                    @updates[entity.id] = {properties:update}
-                else 
-                    @updates[entity.id].properties[name] = value
-            else 
-                @updates[entity.id] = entity.simplify()
+            switch type
+                when "fog"
+                    if entity 
+                        @updates[entity.id] =
+                            type: "fog" 
+                            properties: 
+                                id: entity.id
+                else
+                    if name 
+                        if not @updates[entity.id]
+                            update = 
+                                id: entity.id
+                            update[name] = value
+                            @updates[entity.id] = {properties:update}
+                        else 
+                            @updates[entity.id].properties[name] = value
+                    else 
+                        @updates[entity.id] = entity.simplify()
 
 module.exports = Player

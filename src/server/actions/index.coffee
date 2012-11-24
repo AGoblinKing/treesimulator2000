@@ -23,7 +23,7 @@ class Take extends Action
         distance: 0
 
     do: () ->
-        for location, entity of @entity.map
+        for location, entity of @entity.map when entity?
             # Don't consume yourself
             if entity.id != @entity.id
                 entity.emit "take", 

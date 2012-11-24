@@ -17,8 +17,8 @@
 		]
 		triggers: [
 			type: "VariableTime"
-			max: 1000 *60*10
-			min: 1000 *60*5
+			max: 1000#0 *60*10
+			min: 1000#0 *60*5
 			interval: true
 		],
 		reactions: [{type: "give"}]

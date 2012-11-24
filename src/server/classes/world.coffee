@@ -1,10 +1,11 @@
 Entity = require "./entity"
+Base = require "./base"
 ###
     The world object + persistence
 ###
 {Land, Tree} = require "../entities"
 
-class World extends Entity
+class World extends Base
     init: ->
         # TODO: Not entirely sure this @locations needs to exist
         @locations = {}
@@ -18,12 +19,13 @@ class World extends Entity
                     y: y
                 , @
         # Add 10 Trees
+
         for t in [0..10]
             @add new Tree
                 x: Math.floor(Math.random()*w)
                 y: Math.floor(Math.random()*h)
                 z: 1
-                
+
     add: (entity) ->
         entity.setWorld @
         super entity
@@ -32,6 +34,7 @@ class World extends Entity
         @on.apply @, arguments
         if @locations[event] 
             fn 
+                type: "look"
                 location: @locations[event].location
                 entity: @locations[event] 
 

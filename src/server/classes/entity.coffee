@@ -30,13 +30,8 @@ class Entity extends Base
         view
 
     setViewBindings: () ->
-        # TODO: Only remove the old ones, keep the ones to be reused
-        #clean up old view
-        if @viewBindings
-            for event, fn of @viewBindings
-                @world.removeListener event, fn if fn?
-                delete @viewBindings[event]
-        else 
+        newViews = []
+        if not @viewBindings
             @viewBindings = {}
 
         if @view > -1
@@ -45,17 +40,39 @@ class Entity extends Base
                 for offsetY in [-@view..@view]
                     for offsetZ in [0..1]
                         event = [loc[0]+offsetX, loc[1]+offsetY, offsetZ].join ":"
-                        @viewBindings[event] = (event) =>
-                            locationT = event.location.join ":"
-                            @map[locationT] = event.entity
+                        newViews.push event
+                        if not @viewBindings[event]?
+                            @viewBindings[event] = (bindEvent) =>
+                                locationT = bindEvent.location.join ":"
+                                @map[locationT] = bindEvent.entity
 
-                            if event.type == "move" and event.oldLocation and (oldLocT = event.oldLocation.join ":") != locationT
-                                @map[oldLocT] = undefined
-                                delete @map[oldLocT]
+                                if bindEvent.type == "move" and bindEvent.oldLocation and (oldLocT = bindEvent.oldLocation.join ":") != locationT
+                                    @map[oldLocT] = undefined
+                                    delete @map[oldLocT]
 
-                            @emit "change:view", event
-                        # Override on so that the world will immediately respond if there is something there?
-                        @world.loc event, @viewBindings[event]
+                                @emit "change:view", bindEvent
+                            # Override on so that the world will immediately respond if there is something there?
+                            @world.loc event, @viewBindings[event]
+
+            #clean up old view bindings if they're not in the newViews
+            for event, fn of @viewBindings when newViews.indexOf(event) == -1
+                @world.removeListener event, fn if fn?
+                delete @viewBindings[event]
+                
+                oldEntity = undefined
+
+                if @map[event]?
+                    oldEntity = @map[event]
+                    @map[event] =  undefined
+                    delete @map[event] 
+
+                # Tell myself about the fog
+                @emit "change:view", 
+                    location: loc
+                    type: "fog"
+                    entity: oldEntity
+
+
     
     fromCSON: (cson) ->
         data = CSON.parseSync cson
