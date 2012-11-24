@@ -2,6 +2,7 @@
 express = require("express")
 app = express.createServer()
 io = require("socket.io").listen(app)
+logger = require "./logger"
 
 app.use express.static "#{__dirname}/../web" 
 
@@ -15,4 +16,7 @@ io.sockets.on "connection", (socket) ->
     world.add player = socket.player = new Player()
     player.setSocket socket
 
-app.listen 8088
+port = process.env.PORT || 8088
+app.listen port
+
+console.log "App listening on #{port}" 
