@@ -143,9 +143,6 @@ class Base extends EventEmitter
                             if @[values[i]] != prop
                                 @[values[i]] = prop
 
-                        @emit "change:#{binding}", 
-                            value: value
-
                     for prop in values 
                         do (binding, prop) =>
                             @on "change:#{prop}", ({value}) ->

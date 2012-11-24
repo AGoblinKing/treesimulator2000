@@ -141,16 +141,21 @@ $ ->
         reconnect: false
     controls.socket = socket
     entities = {}
+    fogged = []
     socket.on "update", (view) ->
         for entity in view
             switch entity.type
                 when "fog"
                     if entities[entity.properties.id] 
                         entities[entity.properties.id].kill()
+                        console.log entities[entity.properties.id].obj.position
                         entities[entity.properties.id] = undefined
+                        delete entities[entity.properties.id]
+                        
                 else 
                     # Create 1x1 Square @ location
                     id = entity.properties.id
+
                     if not entities[id]
                         entities[id] = new Land entity, scene
                     else 

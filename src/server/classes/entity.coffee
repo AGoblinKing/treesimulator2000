@@ -18,8 +18,10 @@ class Entity extends Base
     move: (location) ->
         if @phantom
             @location = location
+            @setViewBindings()
         else 
             @world.move @, location
+            
 
     # TODO: Add bindings to property list
 
@@ -46,7 +48,7 @@ class Entity extends Base
                                 locationT = bindEvent.location.join ":"
                                 @map[locationT] = bindEvent.entity
 
-                                if bindEvent.type == "move" and bindEvent.oldLocation and (oldLocT = bindEvent.oldLocation.join ":") != locationT
+                                if !@phantom and bindEvent.type == "move" and bindEvent.oldLocation and (oldLocT = bindEvent.oldLocation.join ":") != locationT
                                     @map[oldLocT] = undefined
                                     delete @map[oldLocT]
 
@@ -55,22 +57,24 @@ class Entity extends Base
                             @world.loc event, @viewBindings[event]
 
             #clean up old view bindings if they're not in the newViews
-            for event, fn of @viewBindings when newViews.indexOf(event) == -1
-                @world.removeListener event, fn if fn?
-                delete @viewBindings[event]
-                
-                oldEntity = undefined
+            for event, fn of @viewBindings when fn != undefined
+                if newViews.indexOf(event) == -1
+                    @world.removeListener event, fn if fn?
+                    @viewBindings[event] = undefined
+                    delete @viewBindings[event]
+                    
+                    oldEntity = undefined
 
-                if @map[event]?
-                    oldEntity = @map[event]
-                    @map[event] =  undefined
-                    delete @map[event] 
+                    if @map[event]?
+                        oldEntity = @map[event]
+                        @map[event] =  undefined
+                        delete @map[event] 
 
-                # Tell myself about the fog
-                @emit "change:view", 
-                    location: loc
-                    type: "fog"
-                    entity: oldEntity
+                    # Tell myself about the fog
+                    @emit "change:view", 
+                        location: loc
+                        type: "fog"
+                        entity: oldEntity
 
 
     
@@ -102,17 +106,16 @@ class Entity extends Base
 
     events: 
         "changed": ({name, value, oldValue}) ->
-            if @debug
-                console.log @id, name, value, oldValue
-            @world?.emit (@location.join ":"), 
-                type: "property"
-                name: name
-                value: value
-                oldValue: oldValue
-                location: @location
-                entity: @
+            if not @phantom
+                @world?.emit (@location.join ":"), 
+                    type: "property"
+                    name: name
+                    value: value
+                    oldValue: oldValue
+                    location: @location
+                    entity: @
 
-        "change:location": () ->
+        "moved": () ->
             @setViewBindings()
 
     defaults: 

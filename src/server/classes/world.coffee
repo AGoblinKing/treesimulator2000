@@ -7,7 +7,6 @@ Base = require "./base"
 
 class World extends Base
     init: ->
-        # TODO: Not entirely sure this @locations needs to exist
         @locations = {}
 
     generate: (w, h) ->
@@ -19,13 +18,13 @@ class World extends Base
                     y: y
                 , @
         # Add 10 Trees
-
+        ###
         for t in [0..10]
             @add new Tree
                 x: Math.floor(Math.random()*w)
                 y: Math.floor(Math.random()*h)
                 z: 1
-
+        ### 
     add: (entity) ->
         entity.setWorld @
         super entity
@@ -48,7 +47,7 @@ class World extends Base
                 @locations[entity.location.join ":"] = undefined
             oldLoc = entity.location
             entity.location = location
-
+            entity.emit "moved", location
             @emit sLoc,
                 location: location
                 entity: entity
