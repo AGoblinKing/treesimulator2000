@@ -33,9 +33,22 @@ class Reactive extends Trigger
         what: []
 
     register: (fn) -> 
-        @entity.on "view:change", (entity, name, value) =>
+        @entity.on "view:change", ({entity}) =>
             if name in @what
-                fn entity, name, value
+                fn 
+                    entity: entity
+
+class Change extends Trigger
+    defaults: 
+        what: {}
+
+    register: (fn) ->
+        for prop, amount of @what
+            do (prop, amount) =>
+                @entity.on "change:#{prop}", ({dif}) =>
+                    if Math.abs(dif) >= amount
+                        fn 
+                            entity: @entity
 
 class Immediately extends Trigger
     register: (fn) ->
@@ -45,6 +58,7 @@ module.exports =
     Immediately: Immediately
     Reactive: Reactive
     Time: Time
+    Change: Change
     Trigger: Trigger
     VariableTime: VariableTime
 

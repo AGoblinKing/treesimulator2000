@@ -45,6 +45,6 @@ vows.describe("Entities").addBatch
             return
 
         "tree has eaten": (tree, land) ->
-            assert.equal tree.phosphorus, 1
+            assert.equal tree.phosphorus, 11
 
 .export module

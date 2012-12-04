@@ -1,5 +1,4 @@
 Actions = require "../actions"
-Conditionals = require "../conditionals"
 Triggers = require "../triggers"
 logger = require "../logger"
 
@@ -7,14 +6,12 @@ logger = require "../logger"
 class Goal
     constructor: (args = {}) ->
         @actions = []
-        @conditionals = []
         @triggers = []
         @reactions = []
         {@name, actions, conditionals, triggers, reactions} = args 
 
-        
+        @conditionals = conditionals ? []
         @registerType actions, Actions, @actions
-        @registerType conditionals, Conditionals, @conditionals
         @registerType reactions, Actions, @reactions
         @registerType triggers, Triggers, @triggers
 
@@ -29,24 +26,25 @@ class Goal
     start: ->
         @setReactions @reactions
         @setActions @actions
-        @setConditionals @conditionals
         @setTriggers @triggers
 
     register: (@entity) ->
         @start()
 
+    destroy: () ->
+
     execute: () ->
         # Check Conditionals
-        for action in @actions
-            action.do.apply action, arguments
+        doExecute = true
+        for conditional in @conditionals
+            doExecute = doExecute and conditional.call @
+        if doExecute
+            for action in @actions
+                action.do.apply action, arguments
 
     applyInfo: (item) ->
         item.entity = @entity
         item.goal = @
-
-    setConditionals: (conditionals) ->
-        for conditional in conditionals
-            @applyInfo conditional
 
     setActions: (actions) ->
         for action in actions

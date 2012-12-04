@@ -105,9 +105,9 @@ class Entity extends Base
         location: ["x", "y", "z"]
 
     events: 
-        "changed": ({name, value, oldValue}) ->
-            if not @phantom
-                @world?.emit (@location.join ":"), 
+        "change": ({name, value, oldValue}) ->
+            if not @phantom and @world?
+                @world.emit (@location.join ":"), 
                     type: "property"
                     name: name
                     value: value

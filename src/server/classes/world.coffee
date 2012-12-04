@@ -18,13 +18,13 @@ class World extends Base
                     y: y
                 , @
         # Add 10 Trees
-        ###
+
         for t in [0..10]
             @add new Tree
                 x: Math.floor(Math.random()*w)
                 y: Math.floor(Math.random()*h)
                 z: 1
-        ### 
+
     add: (entity) ->
         entity.setWorld @
         super entity

@@ -1,26 +1,72 @@
-{
-	view: 1
-	properties: 
-		type: "tree"
-		phosphorus: 0
-		potassium: 0
-		nitrogen: 0
-	goals: [
-		name: "Eat some food!"
-		actions: [
-			type: "take"
-			what: 
-				phosphorus: 1
-				potassium: 1
-				nitrogen: 1
-			distance: 1
-		]
-		triggers: [
-			type: "VariableTime"
-			max: 1000#0 *60*10
-			min: 1000#0 *60*5
-			interval: true
-		],
-		reactions: [{type: "give"}]
+view: 1
+properties: 
+	type: "tree"
+	phosphorus: 10
+	potassium: 10
+	nitrogen: 10
+	wood: 1
+goals: [
+	name: "Eat some food!"
+	actions: [
+		type: "take"
+		what: 
+			phosphorus: 1
+			potassium: 1
+			nitrogen: 1
+		distance: 1
 	]
-}
+	triggers: [
+		type: "VariableTime"
+		max: 1000#*60*10
+		min: 1000#*60*5
+		interval: true
+	]
+	reactions: [{type: "give"}]
+, 
+	name: "Grow"
+	actions: [
+		type: "change"
+		what: 
+			wood: 1
+			phosphorus: -10
+			nitrogen: -10
+			potassium: -10
+	]
+	conditionals: [() ->
+		@phosphorus > 20 and @potassium > 20 and @nitrogen > 20
+	]
+	triggers: [
+		type: "VariableTime"
+		max: 1000
+		min: 1000
+		interval: true
+	]
+, 
+	name: "Die :("
+	actions: [
+		type: "destroy"
+	]
+	conditionals: [() ->
+		@phosphorus <= 0 or @potassium <= 0 or @nitrogen <= 0
+	]
+	triggers: [{
+		type: "change"
+		what: 
+			phosphorus: 1
+			potassium: 1
+			nitrogen: 1
+	}]	
+, 
+	name: "Make more trees"
+	actions: [
+		type: "create"
+		what: 
+			tree: 1
+	, 
+		type: "change"
+		what: 
+			potassium: -10
+			nitrogen: -10
+			phosphorus: -10
+	]
+]

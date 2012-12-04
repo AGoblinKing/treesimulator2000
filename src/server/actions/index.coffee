@@ -16,6 +16,24 @@ class Give extends Action
             for item, amount of what 
                 @entity[item] += amount
 
+class Change extends Action
+    defaults: 
+        what: {} 
+    do: () ->
+        for property, amount in @what
+            if @[property]?
+                @[property] += amount
+
+class Destroy extends Action
+    do: () ->
+        @goal.destroy()
+
+
+class Create extends Action
+    what: {}
+    findSpot: () ->
+    do: () ->
+        #Find 
 
 class Take extends Action
     defaults:
@@ -48,3 +66,6 @@ module.exports =
     Take: Take
     Action: Action
     Give: Give
+    Change: Change
+    Destroy: Destroy
+    Create: Create

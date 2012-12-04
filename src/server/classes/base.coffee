@@ -47,13 +47,15 @@ class Base extends EventEmitter
             @__defineSetter__ name, (val) ->
                 oldProp = @properties[name]
                 @properties[name] = val
-                @emit "changed",
+                @emit "change",
                     name: name
                     value: val
                     oldValue: oldProp
+                    dif: oldProp - value
                 @emit "change:#{name}", 
                     value: val
                     oldValue: oldProp
+                    dif: oldProp - value
 
     # TODO: Add bindings to property list
 
@@ -131,6 +133,7 @@ class Base extends EventEmitter
                             @emit "change:#{binding}",
                                 value: value
                                 oldValue: oldValue[bind[1]]
+                                dif: oldValue[bind[1]] - value
                 else 
                     @__defineGetter__ binding, ->
                         ret = []

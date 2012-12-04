@@ -24,8 +24,9 @@ class Player extends Entity
         setInterval =>
             @sendUpdates()
         , @updateTime
+
     phantom: true
-    view: 1
+    view: 5
     updateTime: 100
     sendUpdates: ->
         batch = []

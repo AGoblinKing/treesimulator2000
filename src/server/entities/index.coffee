@@ -19,9 +19,9 @@ addEntity = (name, data) ->
         return
 
     Entities[name] = Entities[name.charAt(0).toUpperCase() + name.slice(1)] = class DataEntity extends Entity
-        init: () ->
+        parseProperties: (dataProperties) ->
             properties = {}
-            for property, value of data.properties
+            for property, value of dataProperties
                 if typeof value == "object"
                     switch value.type
                         when "range" 
@@ -31,9 +31,16 @@ addEntity = (name, data) ->
                                 logger.error "Invalid range attribute found in data entry: #{name}:#{property}"
                                 value = 0
                 properties[property] = value
-
+            properties
+        init: () ->
+            if not data.propeties?
+                data.propreties = {}
+            if not data.privates?
+                data.privates = {}
             @load 
-                properties: properties
+                properties: @parseProperties data.properties
+                privates: @parseProperties data.privates
+                conditionals: data.conditionals
                 goals: data.goals
                 view:  data.view
                 debug: data.debug
