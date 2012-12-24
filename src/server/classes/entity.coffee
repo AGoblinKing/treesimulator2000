@@ -85,6 +85,7 @@ class Entity extends Base
     load: (data = {}) ->
         @sets data.properties if data.properties
         @loadGoals data.goals if data.goals
+        @sets data.privates, @privates if data.privates
         @view = data.view if data.view
         @debug = data.debug if data.debug
         return @

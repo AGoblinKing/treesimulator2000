@@ -9,9 +9,13 @@ class Base extends EventEmitter
        
         @children = []
         @properties = {}
+        @privates = {}
         ## Setup Supers as well
         @handleSupers @constructor, @sets, "defaults"
         @sets @defaults
+
+        @handleSupers @constructor, @sets, "privates", @privates
+        @sets @privates
         # Setup ID
         @set "id", uuid.v4()
         # Do the work for overrides
@@ -29,24 +33,24 @@ class Base extends EventEmitter
         @handleSupers @constructor, @setEvents, "events"
         @setEvents @events
 
-    handleSupers: (level, fn, prop) ->
+    handleSupers: (level, fn, prop, additional) ->
         if level.__super__[prop]
-            fn.call @, level.__super__[prop]
-            @handleSupers level.__super__.constructor, fn, prop
+            fn.call @, level.__super__[prop], additional
+            @handleSupers level.__super__.constructor, fn, prop, additional
             
     init: ->
 
-    sets: (values) ->
-        @set name, value for name, value of values
+    sets: (values, container = @properties) ->
+        @set name, value, container for name, value of values
 
-    set: (name, value) ->
-        @properties[name] = value
+    set: (name, value, container = @properties) ->
+        container[name] = value
         if not @__lookupGetter__ name
             @__defineGetter__ name, ->
-                @properties[name]
+                container[name]
             @__defineSetter__ name, (val) ->
-                oldProp = @properties[name]
-                @properties[name] = val
+                oldProp = container[name]
+                container[name] = val
                 @emit "change",
                     name: name
                     value: val

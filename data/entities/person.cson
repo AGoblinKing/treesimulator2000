@@ -13,7 +13,9 @@ goals: [
             what: 
                 wood: 1
     ]
-    conditional: "type == tree"
+    conditionals: [
+        ({entity}) ->
+            return entity.type == "tree"
     triggers: [
         type: "view"
     ]  
