@@ -12,7 +12,8 @@
     "express": "2.x",
     "cson": "",
     "file": "",
-    "winston": ""
+    "winston": "",
+    "node-promise": ""
   }, 
   "devDependencies": {
     "vows": ""

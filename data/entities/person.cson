@@ -1,4 +1,3 @@
-
 properties:
     type: "person"
 
@@ -7,16 +6,7 @@ privates:
     speed: 1 
 
 goals: [
-    name: "Chop Wood"
-    action: [
-        type: "take"
-            what: 
-                wood: 1
-    ]
-    conditionals: [
-        ({entity}) ->
-            return entity.type == "tree"
-    triggers: [
-        type: "view"
-    ]  
+    type: "Harvest"
+    what: 
+        wood: 10
 ]

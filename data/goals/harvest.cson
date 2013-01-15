@@ -1,0 +1,55 @@
+###
+overrides:
+    what: 
+        type: "amount"
+    boundry:
+        x: 
+        y:
+        width:
+        height:
+###     
+goals: [
+    name: "MoveToResource"
+    actions: [ 
+        type: "move"
+        # Move to Entity
+        where: "entity"
+        # Within 1 Square
+        within: 1
+    ]
+    triggers: [
+        type: "view"
+        conditionals: [
+            ({entity}) ->
+                return entity.type == "tree"
+        ]
+    ]
+, 
+    name: "StopHarvest"
+,
+    name: "HarvestResource"
+    actions: [
+        type: "take"
+            what: 
+                wood: 1
+            from: "entity"
+    ]
+    triggers: [
+        type: "event"
+        event: "end:FoundWood"
+    ]
+,   
+    name: "HuntForResource"
+    actions: [
+        type: "hunt"
+        what: 
+            
+        # No Boundries
+    ]
+    triggers: [
+        type: "start" # when goal starts up
+    ,
+        type: "event"
+        event: "end:ChopWood"
+    ]
+]

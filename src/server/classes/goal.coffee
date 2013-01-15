@@ -1,16 +1,20 @@
 Actions = require "../actions"
 Triggers = require "../triggers"
 logger = require "../logger"
+Base = require "./base"
+Promise = require "node-promise"
 
 
-class Goal
+class Goal extends Base
     constructor: (args = {}) ->
         @actions = []
         @triggers = []
         @reactions = []
-        {@name, actions, conditionals, triggers, reactions} = args 
-
+        @goals = []
+        {@name, actions, conditionals, triggers, reactions, goals, properties} = args 
+        super properties
         @conditionals = conditionals ? []
+        @loadGoals goals
         @registerType actions, Actions, @actions
         @registerType reactions, Actions, @reactions
         @registerType triggers, Triggers, @triggers
@@ -24,6 +28,7 @@ class Goal
                 else 
                     logger.error "Unable to load type for goal #{type.type}"
     start: ->
+        goal.start() for goal in @goals
         @setReactions @reactions
         @setActions @actions
         @setTriggers @triggers
@@ -33,14 +38,23 @@ class Goal
 
     destroy: () ->
 
+    addGoal: (goal) ->
+        goal.parent = this
+        @goals.push goal
+
+    loadGoals: (goals) ->
+        @addGoal new Goal(goal) for goal in goals
+
     execute: () ->
         # Check Conditionals
         doExecute = true
         for conditional in @conditionals
             doExecute = doExecute and conditional.call @
         if doExecute
-            for action in @actions
-                action.do.apply action, arguments
+            promises = (action.do.apply action, arguments for action in @actions)
+        
+        Promise.when promises, () =>
+            @emit 
 
     applyInfo: (item) ->
         item.entity = @entity
@@ -69,6 +83,7 @@ class Goal
         simple.conditionals = []
         simple.actions = []
         simple.reactions = []
+        simple.goals = (goal.simplify() for goal in @goals) 
         simple.reactions.push reaction.simplify for reaction in @reactions
         simple.triggers.push trigger.simplify() for trigger in @triggers
         simple.conditionals.push conditional.simplify() for conditional in @conditionals
