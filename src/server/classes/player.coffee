@@ -9,24 +9,16 @@ class Player extends Entity
     defaults:
         type: "player"
     init: ->
-        @updates = {}   
+        @updates = {}
 
     setSocket: (@socket) ->
-        @socket.on "update", ({x, y, z}) =>
-            x = Math.floor x
-            y = Math.floor y
-            z = Math.floor z   
-            
-            if  @x != x or @y != y or @z != y  
-                @move [x, y, z]
-
         @socket.emit "update", @mapSimplify()
         setInterval =>
             @sendUpdates()
         , @updateTime
 
     phantom: true
-    view: 5
+    view: 0
     updateTime: 100
     sendUpdates: ->
         batch = []
@@ -38,7 +30,6 @@ class Player extends Entity
     events: 
         "change:view": ({entity, name, value, oldValue, type}) ->
             # Only send delta 
-
             switch type
                 when "fog"
                     if entity 

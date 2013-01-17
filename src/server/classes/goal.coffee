@@ -14,7 +14,7 @@ class Goal extends Base
         {@name, actions, conditionals, triggers, reactions, goals, properties} = args 
         super properties
         @conditionals = conditionals ? []
-        @loadGoals goals
+        if goals? then @loadGoals goals
         @registerType actions, Actions, @actions
         @registerType reactions, Actions, @reactions
         @registerType triggers, Triggers, @triggers

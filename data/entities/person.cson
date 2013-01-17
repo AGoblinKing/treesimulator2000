@@ -1,6 +1,8 @@
 properties:
     type: "person"
 
+view: 5
+
 privates:
     wood: 0
     speed: 1 
