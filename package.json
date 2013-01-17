@@ -16,7 +16,8 @@
     "node-promise": ""
   }, 
   "devDependencies": {
-    "vows": ""
+    "vows": "",
+    "watch": ""
   },
   "repository": "",
   "author": "Codeir"

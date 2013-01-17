@@ -2,7 +2,9 @@
 overrides:
     what: 
         type: "amount"
-    boundry:
+    whom: 
+        type: 
+    where:
         x: 
         y:
         width:
@@ -12,8 +14,6 @@ goals: [
     name: "MoveToResource"
     actions: [ 
         type: "move"
-        # Move to Entity
-        where: "entity"
         # Within 1 Square
         within: 1
     ]
@@ -21,7 +21,7 @@ goals: [
         type: "view"
         conditionals: [
             ({entity}) ->
-                return entity.type == "tree"
+                return entity.type == @goal.whom.type
         ]
     ]
 , 
@@ -30,9 +30,6 @@ goals: [
     name: "HarvestResource"
     actions: [
         type: "take"
-            what: 
-                wood: 1
-            from: "entity"
     ]
     triggers: [
         type: "event"
@@ -41,10 +38,7 @@ goals: [
 ,   
     name: "HuntForResource"
     actions: [
-        type: "hunt"
-        what: 
-            
-        # No Boundries
+        type: "find"            
     ]
     triggers: [
         type: "start" # when goal starts up
