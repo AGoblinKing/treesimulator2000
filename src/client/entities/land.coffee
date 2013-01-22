@@ -9,7 +9,7 @@ geos = (for x in [0..5]
             mesh = new THREE.Mesh new THREE.CubeGeometry(ratio, ratio, ratio), mat
             mesh.position.x = x*ratio
             mesh.position.y = y*ratio
-            mesh.position.z = (Math.random()*2)*ratio
+            mesh.position.z = (Math.random())*ratio
             
             THREE.GeometryUtils.merge(mergedGeo, mesh)
     mergedGeo
@@ -27,7 +27,7 @@ class Land
                 new THREE.Mesh new THREE.CubeGeometry(size, size, size), mat
             else
                 new THREE.Mesh geos[Math.floor((Math.random()*5))], mat
-        console.log obj
+
         props = entity.properties
         obj.position.x = props.x
         obj.position.y = props.y
