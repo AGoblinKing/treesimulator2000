@@ -26,7 +26,7 @@ class Player extends Entity
         , @updateTime
 
     phantom: true
-    view: 5
+    view: 10
     updateTime: 100
     sendUpdates: ->
         batch = []
