@@ -22,6 +22,9 @@
     "browserify": "",
     "walk": ""
   },
+  "engines": {
+    "node": "0.8.x"
+  },
   "repository": "",
   "author": "Codeir"
 }
