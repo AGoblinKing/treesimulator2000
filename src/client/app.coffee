@@ -1,3 +1,5 @@
+Land = require "./entities/land"
+
 class Controls 
     constructor: (@camera, @speed = 10, @grid = []) ->
         @keyState = new THREEx.KeyboardState()
@@ -53,59 +55,6 @@ class Controls
         if @keyState.pressed "d"
             @camera.position.x += @speed*delta
 
-class Land
-    constructor: (entity, @scene) ->
-        @properties = entity.properties
-
-        
-        mat = new THREE.MeshLambertMaterial
-            color: @computeColor()
-
-        switch @properties.type
-            when "tree"
-                geom = new THREE.CubeGeometry 1,1,1
-            else
-                geom = new THREE.PlaneGeometry 1,1
-        
-        @obj = obj = new THREE.Mesh geom, mat
-
-        props = entity.properties
-        obj.position.x = props.x
-        obj.position.y = props.y
-        if props.z > 0 
-            props.z -= .5
-        obj.position.z = props.z
-        ###
-        outline = new THREE.MeshLambertMaterial
-            color: 0x000000
-            wireframe: true
-        outlineMesh = new THREE.Mesh geom, outline
-        outlineMesh.position.z += .001
-        obj.add outlineMesh
-        ###
-        @scene.add obj
-
-    update: ({properties}) ->
-        $.extend @properties, properties
-        if properties.phosphorus or properties.nitrogen or properties.phosorphus
-            @obj.material.color = @computeColor()  
-
-    kill: ->
-        @scene.remove @obj
-        @obj.deallocate()
-
-    computeColor: ->
-        # green
-        color = new THREE.Color 0x5E2605
-        green = @properties.nitrogen/100 * 1
-        # yellow
-        green += @properties.potassium/100 * 1
-        # brown
-        green += @properties.phosphorus/100 * 1
-        color.g = green/3
-        color
-
-
 $ ->
     WIDTH = window.innerWidth
     HEIGHT = window.innerHeight
@@ -148,7 +97,6 @@ $ ->
                 when "fog"
                     if entities[entity.properties.id] 
                         entities[entity.properties.id].kill()
-                        console.log entities[entity.properties.id].obj.position
                         entities[entity.properties.id] = undefined
                         delete entities[entity.properties.id]
                         
