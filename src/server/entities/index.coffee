@@ -45,7 +45,7 @@ addEntity = (name, data) ->
                 view:  data.view
                 debug: data.debug
 
-file.walkSync "#{dir.join(path.sep)}\\data\\entities", (dir, dirs, files) ->
+file.walkSync path.join("#{dir.join(path.sep)}", "data", "entities"), (dir, dirs, files) ->
     for file in files 
         contents = fs.readFileSync "#{dir}/#{file}", "utf8"
         addEntity path.basename(file, ".cson"), CSON.parseSync contents
