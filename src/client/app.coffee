@@ -65,6 +65,7 @@ $ ->
     FAR = 100000
 
     renderer = new THREE.WebGLRenderer()
+    renderer.shadowMapEnabled = true
     renderer.setSize WIDTH, HEIGHT
     document.body.appendChild renderer.domElement
 
@@ -76,8 +77,9 @@ $ ->
     camera.position.set( 0, -5, 20)
     camera.lookAt scene.position
     scene.add camera
-    light = new THREE.PointLight 0xFFFFFF
+    light = new THREE.DirectionalLight 0xFFFFFF
     light.position.set 0, 0, 0
+    light.castShadow = true
     camera.add light
     controls = new Controls camera, 10, scene.children
 

@@ -1,4 +1,4 @@
-view: 1
+view: 2
 properties: 
 	type: "tree"
 	phosphorus: 10
@@ -13,7 +13,7 @@ goals: [
 			phosphorus: 1
 			potassium: 1
 			nitrogen: 1
-		distance: 1
+		distance: 2
 	]
 	triggers: [
 		type: "VariableTime"

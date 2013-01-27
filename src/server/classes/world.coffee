@@ -16,6 +16,7 @@ class World extends Base
                 @add new Land 
                     x: x
                     y: y
+                    roughness: Math.floor Math.random()*10
                 , @
         # Add 10 Trees
 
