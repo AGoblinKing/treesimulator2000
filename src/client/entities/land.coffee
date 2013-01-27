@@ -1,20 +1,37 @@
 size = 1
 div = 5
 ratio = size/div
-geos = (for x in [0..5]
-    mat = new THREE.Material
+
+blankMat = new THREE.Material
+
+Voxel = ->
+    new THREE.Mesh new THREE.CubeGeometry(ratio, ratio, ratio), blankMat
+lands = (for rough in [0..10]
     mergedGeo = new THREE.Geometry()
     for x in [0..div]
         for y in [0..div]
-            mesh = new THREE.Mesh new THREE.CubeGeometry(ratio, ratio, ratio), mat
-            mesh.position.x = x*ratio
-            mesh.position.y = y*ratio
-            mesh.position.z = (Math.random())*ratio
+            roughQuad = rough/10
+            mesh = Voxel()
+            mesh.position.x = x*ratio - size/2
+            mesh.position.y = y*ratio - size/2
+            mesh.position.z = Math.random()*roughQuad*ratio
             
             THREE.GeometryUtils.merge(mergedGeo, mesh)
     mergedGeo
 )
 
+trees = (for num in [0..10]
+    # assume num is thenumber of wood
+    mergedGeo = new THREE.Geometry()
+    for wood in [0..num]
+        mesh = Voxel()
+        mesh.position.x = 
+
+
+)
+
+
+turns = [Math.PI, 0, Math.PI/2, 3*Math.PI/2]
 class Land
     constructor: (entity, @scene) ->
         @properties = entity.properties
@@ -22,32 +39,30 @@ class Land
         mat = new THREE.MeshLambertMaterial
             color: @computeColor()
 
-        @obj = obj = switch @properties.type
+        switch @properties.type
             when "tree"
-                new THREE.Mesh new THREE.CubeGeometry(size, size, size), mat
+                @addObj new THREE.Mesh new THREE.CubeGeometry(size, size, size), mat
             else
-                new THREE.Mesh geos[Math.floor((Math.random()*5))], mat
+                mesh = new THREE.Mesh lands[@properties.roughness ? 10], mat
+                mesh.rotation.setZ turns[Math.floor Math.random()*4]
+                @addObj mesh 
 
-        props = entity.properties
+    addObj: (obj) ->
+        @obj = obj
+        obj.castShadow = false
+        obj.receiveShadow = true
+        props = @properties
         obj.position.x = props.x
         obj.position.y = props.y
         if props.z > 0 
             props.z -= .5
-        obj.position.z = props.z
-        ###
-        outline = new THREE.MeshLambertMaterial
-            color: 0x000000
-            wireframe: true
-        outlineMesh = new THREE.Mesh geom, outline
-        outlineMesh.position.z += .001
-        obj.add outlineMesh
-        ###
+        obj.position.z = props.z+(Math.random()*.01)
         @scene.add obj
 
     update: ({properties}) ->
         $.extend @properties, properties
         if properties.phosphorus or properties.nitrogen or properties.phosorphus
-            @obj.material.color = @computeColor()  
+            @obj?.material.color = @computeColor()  
 
     kill: ->
         @scene.remove @obj
