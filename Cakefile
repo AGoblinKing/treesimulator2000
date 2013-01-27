@@ -5,8 +5,8 @@ watch = require "watch"
 path = require "path"
 mkpath = require "mkpath"
 
-launch = (path, opts = {}) ->
-    app = exec path, opts
+launch = (path, opts = {}, callback) ->
+    app = exec path, opts, callback
     app.stdout.pipe process.stdout 
     app.stderr.pipe process.stderr
 
@@ -24,12 +24,12 @@ deleteFile = (src, dest) ->
             fs.unlink (file.replace src, dest)
 
 task "compile", "compile EVERYTHING", ->
-    walker = walk.walk "./src"
+    walker = walk.walk "src"
     walker.on "file", (root, fileStats, next) ->
-        cloneFile "#{root}/#{fileStats.name}"
+        cloneFile("src", "lib") "#{root}/#{fileStats.name}"
         next()
-    launch "coffee -o lib/ -c src"
-    launch "browserify ./lib/client/app.js -o ./lib/web/app.js"
+    launch "coffee -o lib/ -c src", {}, ->
+        launch "browserify ./lib/client/app.js -o ./lib/web/app.js"
 
 task "watch", "watch all sources", ->
     invoke "compile"
@@ -37,10 +37,13 @@ task "watch", "watch all sources", ->
         monitor.on "created", cloneFile("src", "lib")
         monitor.on "changed", cloneFile("src", "lib")
         monitor.on "removed", deleteFile("src", "lib")
+
+    ###
     watch.createMonitor "./lib/client/workers", (monitor) ->
         monitor.on "created", cloneFile("client", "web")
         monitor.on "changed", cloneFile("client", "web")
         monitor.on "removed", deleteFile("client", "web")
+    ###
     launch "coffee -o lib/ -cw src",
         customFds: [0,1,2] 
     launch "browserify ./lib/client/app.js -wo ./lib/web/app.js"

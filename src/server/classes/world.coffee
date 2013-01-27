@@ -26,6 +26,12 @@ class World extends Base
                 y: Math.floor(Math.random()*h)
                 z: 1
 
+        @add new Tree
+            x: 0
+            y: 0
+            z: 1
+            wood: 20
+
     add: (entity) ->
         entity.setWorld @
         super entity

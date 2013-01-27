@@ -7,7 +7,7 @@ logger = require "./logger"
 app.use express.static "#{__dirname}/../web" 
 
 world = new (require "./classes/world")
-world.generate 50, 50
+world.generate 20, 20
 
 Player = require "./classes/player"
 
