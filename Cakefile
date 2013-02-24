@@ -28,8 +28,7 @@ task "compile", "compile EVERYTHING", ->
     walker.on "file", (root, fileStats, next) ->
         cloneFile("src", "lib") "#{root}/#{fileStats.name}"
         next()
-    launch "coffee -o lib/ -c src", {}, ->
-        launch "browserify ./lib/client/app.js -o ./lib/web/app.js"
+    launch "coffee -o lib/ -c src"
 
 task "watch", "watch all sources", ->
     invoke "compile"
@@ -38,15 +37,8 @@ task "watch", "watch all sources", ->
         monitor.on "changed", cloneFile("src", "lib")
         monitor.on "removed", deleteFile("src", "lib")
 
-    ###
-    watch.createMonitor "./lib/client/workers", (monitor) ->
-        monitor.on "created", cloneFile("client", "web")
-        monitor.on "changed", cloneFile("client", "web")
-        monitor.on "removed", deleteFile("client", "web")
-    ###
     launch "coffee -o lib/ -cw src",
         customFds: [0,1,2] 
-    launch "browserify ./lib/client/app.js -wo ./lib/web/app.js"
 
 task "test", "test the code", ->
     launch "vows --spec -r",

@@ -4,7 +4,7 @@ app = express.createServer()
 io = require("socket.io").listen(app)
 logger = require "./logger"
 
-app.use express.static "#{__dirname}/../web" 
+app.use express.static "#{__dirname}/../client" 
 
 world = new (require "./classes/world")
 world.generate 20, 20

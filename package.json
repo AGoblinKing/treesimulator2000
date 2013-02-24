@@ -13,7 +13,8 @@
     "cson": "",
     "file": "",
     "winston": "",
-    "node-promise": ""
+    "node-promise": "",
+    "backbone": ""
   }, 
   "devDependencies": {
     "vows": "",
